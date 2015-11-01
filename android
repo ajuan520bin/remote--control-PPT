@@ -1,0 +1,210 @@
+//---------------------------------------------------------------------------
+
+#include <fmx.h>
+#pragma hdrstop
+
+#include "Unit1.h"
+//---------------------------------------------------------------------------
+#pragma package(smart_init)
+#pragma resource "*.fmx"
+#pragma resource ("*.Windows.fmx", _PLAT_MSWINDOWS)
+
+TForm1 *Form1;
+//---------------------------------------------------------------------------
+__fastcall TForm1::TForm1(TComponent* Owner)
+	: TForm(Owner)
+{
+	//IdTCPServer1->Bindings->Items->
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::ListenClick(TObject *Sender)
+{
+   Listen->IsChecked = !Listen->IsChecked;
+   if(Listen->IsChecked)
+   {
+	  //IdTCPClient1->Disconnect()
+	  if (IdTCPServer1->Active != true)
+		IdTCPServer1->Active = true;
+	  IdTCPServer1->StartListening();
+	  Memo2->Lines->Add("Listening...");
+   }
+   else
+   {
+	  if(IdTCPServer1->Active)
+	  {
+		  IdTCPServer1->Active = false;
+		  IdTCPServer1->StopListening();
+	  }
+	  Memo2->Lines->Add("...");
+   }
+
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void __fastcall TForm1::ConnectClick(TObject *Sender)
+{
+   if(IdTCPClient1->Connected())
+   {
+	   IdTCPClient1->Disconnect();
+   }
+   if(InputQuery("Device to connect to","Address Name:",Server))
+	{
+		if(Server.Length() > 0)
+		{
+			IdTCPClient1 ->	Host = Server;
+			IdTCPClient1->Connect();
+			Listen->IsChecked = false;
+		}
+	}
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::ExitClick(TObject *Sender)
+{
+   IdTCPClient1->Disconnect();
+   IdTCPServer1->Active = false;
+   Close();
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Memo1KeyDown(TObject *Sender, WORD &Key, System::WideChar &KeyChar,
+		  TShiftState Shift)
+{
+	if(Key == VK_RETURN)
+   {
+//	   if(IsServer)
+	   {
+		   IdTCPClient1->Socket->WriteLn
+				(Memo1 -> Lines -> Strings[Memo1 -> Lines -> Count -1]);
+		   AnsiString str = IdTCPClient1->Socket->ReadLn();
+		   int a=0;
+		   //ServerSocket -> Socket -> Connections[0] -> SendText(
+		   //Memo1 -> Lines -> Strings[Memo1 -> Lines -> Count -1] ) ;
+	   }
+//	   else
+//	   {
+//		   ClientSocket -> Socket ->SendText(
+//		   Memo1 -> Lines -> Strings[Memo1->Lines->Count-1]);
+//	   }
+   }
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::SpeedButton1Click(TObject *Sender)
+{
+	this->IdTCPClient1->Connect("ThinkPad-T540p", 1024);
+	//IdTCPClient1->IOHandler->WriteLn(IdTCPClient1->Host);
+	IdTCPClient1->IOHandler->WriteLn("Hello");
+	//TCPClient1->Socket->
+
+
+
+}
+//---------------------------------------------------------------------------
+
+
+
+
+
+void __fastcall TForm1::IdTCPServer1Execute(TIdContext *AContext)
+{
+	int n = 0;
+	AnsiString str = AContext->Connection->IOHandler->ReadLn();
+	if(str == "d")
+	{
+		keybd_event(VK_NEXT,0,0,0);
+		keybd_event(VK_NEXT,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "u")
+	{
+		keybd_event(VK_PRIOR,0,0,0);
+		keybd_event(VK_PRIOR,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "B")
+	{
+		keybd_event(0x42,0,0,0);
+		keybd_event(0x42,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "L")
+	{
+		keybd_event(VK_LEFT,0,0,0);
+		keybd_event(VK_LEFT,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "R")
+	{
+		keybd_event(VK_RIGHT,0,0,0);
+		keybd_event(VK_RIGHT,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "Enter")
+	{
+		keybd_event(VK_RETURN,0,0,0);
+		keybd_event(VK_RETURN,0,KEYEVENTF_KEYUP,0);
+		keybd_event(VK_MENU,0,KEYEVENTF_KEYUP,0);
+	}
+	if(str == "Switch")
+	{
+		  keybd_event(VK_MENU,0,0,0);
+		  keybd_event(VK_TAB,0,0,0);
+		keybd_event(VK_TAB,0,KEYEVENTF_KEYUP,0);
+    }
+	/*
+	if(str == "c")
+	{
+		IdTCPServer1->
+	}
+	*/
+	AContext->Connection->IOHandler->WriteLn(0);
+	Memo2->Lines->Add(str);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::IdTCPServer1Connect(TIdContext *AContext)
+{
+	AnsiString str = AContext->Connection->Socket->Host;// >Socket->WriteLn("Hello");
+     Memo2->Lines->Add("Connected...");
+
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::IdTCPClient2Status(TObject *ASender, const TIdStatus AStatus,
+		  const UnicodeString AStatusText)
+{
+	int n = 0;
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::IdTCPClient1Status(TObject *ASender, const TIdStatus AStatus,
+		  const UnicodeString AStatusText)
+{
+	int a = 0;
+}
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::IdTCPClient1Disconnected(TObject *Sender)
+{
+		 Memo2->Lines->Add("DisConnected...");
+}
+//-------------------
+
+
+void __fastcall TForm1::Button1Click(TObject *Sender)
+{
+
+	IdTCPClient1->Socket->Close();
+}
+//---------------------------------------------------------------------------
+
+
+
+
